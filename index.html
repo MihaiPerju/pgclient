@@ -98,8 +98,6 @@
   .file .n { color: var(--warn); }
   .file .c { color: var(--muted); }
 
-  #graph .wrap > div { max-width: 760px; }
-  #graph figure { margin-top: 36px; }
 
 
   .journey { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 30px; }
@@ -117,9 +115,13 @@
     10%, 30% { opacity: 1; border-color: var(--glow); box-shadow: 0 0 0 1px var(--glow) inset; }
     38%, 100% { opacity: .45; border-color: var(--line); box-shadow: none; }
   }
-  .zooms { display: grid; grid-template-columns: 1fr; gap: 40px; margin-top: 34px; }
-  .zooms figure img { width: 100%; height: auto; }
   #tunnels .files { margin-top: 0; }
+
+  .wrap.wide { max-width: 1500px; padding: 0 20px; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+  .duo figure img { width: 100%; height: auto; }
+  .duo a.open { display: block; cursor: zoom-in; }
+  .duo figcaption { font-size: 14px; line-height: 1.5; }
 
   .envs { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 18px; }
   .env { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; background: var(--panel); }
@@ -151,7 +153,7 @@
   footer { margin-top: 96px; padding: 34px 0 54px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 
   @media (max-width: 900px) {
-    .split, .split.wide, .pair, .zooms, .journey { grid-template-columns: 1fr; gap: 28px; }
+    .split, .split.wide, .pair, .duo, .journey { grid-template-columns: 1fr; gap: 28px; }
     nav .links a:not(:last-child) { display: none; }
     .dots { display: none; }
     .slide { min-height: 0; padding: 88px 0 56px; }
@@ -271,22 +273,32 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
   </section>
 
   <section class="slide" id="graph">
-    <div class="wrap">
-      <div>
-        <div class="eyebrow">Problem <span class="num">03 / 05</span></div>
-        <p class="problem">“To follow a foreign key I have to write the next query, and the one after that, and lose track of where I started.”</p>
-        <h2>Explore your data as a <em>graph</em>.</h2>
-        <p>Run a query on a table and switch the result to a graph. Each card is a row. Open its links and the rows it points to, and the rows that point at it, appear beside it.</p>
-        <ul>
-          <li><b>Three clicks</b> took one order to its customer, its shipment, its items and their products.</li>
-          <li><b>Open all</b> follows every link a row has, or pick one.</li>
-          <li><b>Click a card</b> to read its whole row at the side.</li>
-        </ul>
+    <div class="wrap wide">
+      <div class="eyebrow">Problem <span class="num">03 / 05</span></div>
+      <p class="problem">“To follow a foreign key I have to write the next query, and the one after that, and lose track of where I started.”</p>
+      <h2>Follow the keys. See the <em>graph</em>.</h2>
+      <p style="max-width: 760px;">Two ways to walk from a row to the rows around it, and neither means writing a join.</p>
+      <div class="duo">
+        <figure>
+          <a class="open" href="docs/screenshots/follow-rightclick.webp" target="_blank" rel="noopener" title="Open full size">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/follow-rightclick-still.webp">
+              <img class="shot" src="docs/screenshots/follow-rightclick.webp" alt="A table of orders where right-clicking a cell opens a menu of related tables; each pick opens a new tab with the related rows, from an order to its customer, the customer's orders, the order's items and then a product" width="1500" height="937" loading="lazy">
+            </picture>
+          </a>
+          <figcaption><b>In the table: right-click.</b> Right-click a cell in a column that links somewhere. Pick what it points to, or what points at it, and the related rows open in a new tab as a query, ready to run. Your trail stays in the tab strip.</figcaption>
+        </figure>
+        <figure>
+          <a class="open" href="docs/screenshots/follow-graph.webp" target="_blank" rel="noopener" title="Open full size">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/follow-graph-still.webp">
+              <img class="shot" src="docs/screenshots/follow-graph.webp" alt="A graph that starts as one order card and grows as links are opened one at a time: its customer, its items, the products of those items and its shipment" width="1500" height="937" loading="lazy">
+            </picture>
+          </a>
+          <figcaption><b>In the graph: open links, card by card.</b> Click the links icon on a card and pick one relation, or Open all. The related rows appear beside it, joined by the key. Click a card to read its whole row.</figcaption>
+        </figure>
       </div>
-      <figure>
-        <img class="shot" src="docs/screenshots/graph.webp" alt="A graph from one order: its customer, a shipment, two order items and the two products they refer to, joined by foreign-key lines" width="2225" height="1130" loading="lazy">
-        <figcaption>One order, opened out through its foreign keys. The data is invented.</figcaption>
-      </figure>
+      <p class="fine">Click an animation to open it full size. The data is invented.</p>
     </div>
   </section>
 
@@ -340,28 +352,32 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
   </section>
 
   <section class="slide" id="zoom">
-    <div class="wrap">
+    <div class="wrap wide">
       <div class="eyebrow">Problem <span class="num">05 / 05</span></div>
       <p class="problem">“The result never fits its pane. I want to see all of it for a moment, and then have my editor back.”</p>
       <h2>Pinch to <em>grow</em> it.</h2>
       <p style="max-width: 760px;">Pinch out over a result, table or graph, and it grows from where it sits as your fingers spread, until it fills the window. Stop halfway and it stays that size. Pinch back, or press <code>Esc</code>, and it returns to its place.</p>
-      <div class="zooms">
+      <div class="duo">
         <figure>
-          <picture>
-            <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/pinch-table-still.webp">
-            <img class="shot" src="docs/screenshots/pinch-table.webp" alt="A table of orders growing from the bottom pane until it fills the whole window, then shrinking back" width="1860" height="1154" loading="lazy">
-          </picture>
-          <figcaption><b>Table.</b> More rows, and the last column fits.</figcaption>
+          <a class="open" href="docs/screenshots/pinch-table.webp" target="_blank" rel="noopener" title="Open full size">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/pinch-table-still.webp">
+              <img class="shot" src="docs/screenshots/pinch-table.webp" alt="A table of orders growing from the bottom pane until it fills the whole window, then shrinking back" width="1500" height="937" loading="lazy">
+            </picture>
+          </a>
+          <figcaption><b>Table.</b> More rows come into view.</figcaption>
         </figure>
         <figure>
-          <picture>
-            <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/pinch-graph-still.webp">
-            <img class="shot" src="docs/screenshots/pinch-graph.webp" alt="A graph of one order and its linked rows growing from the bottom pane until it fills the window, its cards re-flowing as it grows" width="1860" height="1154" loading="lazy">
-          </picture>
-          <figcaption><b>Graph.</b> It has room to lay every card out.</figcaption>
+          <a class="open" href="docs/screenshots/pinch-graph.webp" target="_blank" rel="noopener" title="Open full size">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/pinch-graph-still.webp">
+              <img class="shot" src="docs/screenshots/pinch-graph.webp" alt="A graph of one order and its linked rows growing from the bottom pane until it fills the window, then shrinking back" width="1500" height="937" loading="lazy">
+            </picture>
+          </a>
+          <figcaption><b>Graph.</b> Room to see every card at once.</figcaption>
         </figure>
       </div>
-      <p class="fine">The same pinch works on a trackpad in the app. The animation is the real screen, played back frame by frame from a pinch driven step by step. The data is invented.</p>
+      <p class="fine">The same pinch works on a trackpad in the app. These are the real screens, played back frame by frame from a pinch driven step by step. Click one to open it full size. The data is invented.</p>
     </div>
   </section>
 
