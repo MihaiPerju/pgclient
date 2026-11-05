@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PgClient servers file, version 1",
+  "type": "object",
+  "required": [
+    "servers"
+  ],
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "A newer version is refused rather than half read. Left out, it means 1."
+    },
+    "servers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Importing a name that is already saved updates that server (case does not matter)."
+          },
+          "uri": {
+            "type": "string",
+            "description": "postgres://user:password@host:port/database. Any field below, if given, wins over what the address says."
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535,
+            "default": 5432
+          },
+          "user": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "description": "Left out of an export unless asked for. On import it goes to the Keychain, never to the saved file."
+          },
+          "database": {
+            "type": "string",
+            "description": "Opened first when the server is chosen."
+          },
+          "group": {
+            "type": "string"
+          },
+          "environment": {
+            "enum": [
+              "local",
+              "dev",
+              "staging",
+              "prod"
+            ],
+            "description": "Shown after the name, and its colour takes the place of the indigo accent: teal for local, blue for dev, red for prod. Staging keeps the indigo. The same name may be listed once in each environment."
+          },
+          "tunnel": {
+            "type": "object",
+            "required": [
+              "command"
+            ],
+            "description": "Started before connecting if the server's port is not already answering, and stopped when the app quits. Only read from the servers file: an import ignores it, so pasted text can never make the app run a command.",
+            "properties": {
+              "command": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "description": "One line for the shell."
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "A program and its arguments, which needs no quoting."
+                  }
+                ]
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 20,
+                "description": "How long to wait for the port to open."
+              }
+            }
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "uri"
+            ]
+          },
+          {
+            "required": [
+              "host",
+              "user"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

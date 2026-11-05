@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PgClient — a small, fast Postgres client</title>
+<meta name="description" content="PgClient is an open-source desktop client for PostgreSQL: write SQL, watch the database, find the blocking session, read the plan.">
+<style>
+  :root {
+    --bg: #0b0b0e;
+    --panel: #121217;
+    --line: #23232b;
+    --text: #e8e8ee;
+    --muted: #9a9aa8;
+    --accent: #6c70dc;
+    --accent-soft: #6c70dc26;
+    --ok: #4cc38a;
+    --warn: #f0a94b;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  nav .brand { font-weight: 650; font-size: 19px; color: var(--text); letter-spacing: -0.01em; }
+  nav .links { display: flex; gap: 26px; font-size: 15px; }
+  nav .links a { color: var(--muted); }
+  nav .links a:hover { color: var(--text); text-decoration: none; }
+
+  .hero { text-align: center; padding: 56px 0 40px; }
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); font-size: 13px;
+  }
+  h1 { font-size: clamp(36px, 6vw, 62px); line-height: 1.08; letter-spacing: -0.03em; margin: 22px 0 18px; font-weight: 700; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lead { max-width: 640px; margin: 0 auto 30px; color: var(--muted); font-size: 19px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 11px 22px; border-radius: 9px; font-weight: 600; font-size: 15px;
+    border: 1px solid var(--line); color: var(--text); background: var(--panel);
+  }
+  .btn:hover { text-decoration: none; border-color: #3a3a46; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.1); }
+
+  .shot {
+    display: block; width: 100%; height: auto; border-radius: 12px;
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 80px -20px #000, 0 0 0 1px #ffffff06 inset;
+  }
+  .hero .shot { margin-top: 52px; }
+
+  section { padding: 84px 0 0; }
+  h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.025em; line-height: 1.15; margin: 0 0 14px; }
+  .kicker { color: var(--accent); font-weight: 600; font-size: 13px; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 10px; }
+  p.sub { color: var(--muted); max-width: 640px; margin: 0 0 32px; }
+
+  .feature { max-width: 680px; padding: 56px 0 0; }
+  .feature h3 { font-size: 26px; letter-spacing: -0.02em; margin: 0 0 12px; line-height: 1.2; }
+  .feature p { color: var(--muted); margin: 0 0 12px; }
+  .feature ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); }
+  .feature li { margin: 6px 0; }
+  .feature li b { color: var(--text); font-weight: 600; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px; }
+  .card h4 { margin: 0 0 8px; font-size: 17px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 720px; }
+  th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+  tr.us { background: var(--accent-soft); }
+  .fine { color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+  .honest { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 28px; }
+  .honest .card h4 { color: var(--warn); }
+
+  pre {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 22px; overflow-x: auto; margin: 0 0 14px; color: #cfcfe0;
+  }
+  pre .c { color: var(--muted); }
+
+  footer { margin-top: 96px; padding: 34px 0 54px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 820px) {
+  
+    nav .links { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <span class="brand">PgClient</span>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#compare">Compared</a>
+      <a href="#start">Get started</a>
+      <a href="https://github.com/MihaiPerju/pgclient">GitHub</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <span class="badge">Open source · MIT · Built for PostgreSQL</span>
+    <h1>The Postgres client that<br>tells you <em>what is wrong</em>.</h1>
+    <p class="lead">Write SQL, read the plan, watch the database breathe, and see which session is blocking which, all in one small desktop app that starts instantly.</p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Get started</a>
+      <a class="btn" href="https://github.com/MihaiPerju/pgclient">View on GitHub</a>
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="kicker">What it does</div>
+    <h2>Everything you open a database client for, and the things you usually open three other tools for.</h2>
+
+    <div class="feature">
+      <div class="text">
+        <h3>It knows your schema while you type</h3>
+        <p>When you pick a database, its tables, columns and foreign keys load once and stay. The editor suggests from them before you type the first letter.</p>
+        <ul>
+          <li><b>After <code>from</code> or <code>join</code>:</b> tables.</li>
+          <li><b>After an alias and a dot:</b> that table's columns.</li>
+          <li><b>After <code>join … on</code>:</b> the conditions your foreign keys give.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature flip">
+      <div class="text">
+        <h3>Find the session that is holding everyone up</h3>
+        <p>The Sessions view shows who is connected, what they run, and for how long. A session idle in a transaction, keeping its locks, is flagged. So is the one waiting on it.</p>
+        <ul>
+          <li><b>Blocking and waiting</b> are called out in plain words, with the PID.</li>
+          <li><b>Cancel query</b> or <b>End session</b> on the row.</li>
+          <li>Refreshes every two seconds.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="text">
+        <h3>A live dashboard, without a monitoring stack</h3>
+        <p>Transactions per second, connections by state, rows in and out, WAL, and cache hits against disk reads. They are drawn from Postgres's own statistics over the connection you already have open.</p>
+        <p>A strip above the editor keeps connections, active sessions, blocked sessions, cache hit ratio and TPS in view while you work.</p>
+      </div>
+    </div>
+
+    <div class="feature flip">
+      <div class="text">
+        <h3>Read a plan in seconds</h3>
+        <p>Explain shows how Postgres would run the query without running it. Each node is a bar sized by its cost, so the expensive step is the one that stands out. Click a node for its rows, filter and width.</p>
+        <p>Explain Analyze runs it for real times when you want them.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">Built for working on real servers</div>
+    <h2>Small details that keep you out of trouble.</h2>
+    <p class="sub">Most of these come from using it against staging and production every day.</p>
+    <div class="grid">
+      <div class="card">
+        <h4><span class="dot" style="background:#e5484d"></span>Environments you can see</h4>
+        <p>Tag a server <code>local</code>, <code>dev</code>, <code>staging</code> or <code>prod</code>. The accent colour of the whole window changes with it, so you know where you are before you press Run.</p>
+      </div>
+      <div class="card">
+        <h4>Tunnels that start themselves</h4>
+        <p>Give a server a command such as <code>kubectl port-forward</code>. It starts when you connect, restarts if the port answers but lets nothing through, and stops when the app quits.</p>
+      </div>
+      <div class="card">
+        <h4>Your <code>~/.pgpass</code> works</h4>
+        <p>Servers with no password get one from <code>~/.pgpass</code> the way <code>psql</code> does, so the config file never has to hold a secret. Passwords you do add go in the macOS Keychain.</p>
+      </div>
+      <div class="card">
+        <h4>Servers as a file</h4>
+        <p>Like <code>~/.kube/config</code>: one JSON file, with a schema, that you can keep in dotfiles. Or paste <code>postgres://</code> addresses, one per line, to import them.</p>
+      </div>
+      <div class="card">
+        <h4>Results you can work with</h4>
+        <p>Drag to select a block and copy it. Edit cells in place and delete rows. Open JSON cells in a highlighted viewer. Hide columns, find a column, show dates in a readable form, export.</p>
+      </div>
+      <div class="card">
+        <h4>Rows as a graph</h4>
+        <p>Show a result as a graph of what its rows link to, instead of a flat grid, and pick a card to see its row.</p>
+      </div>
+      <div class="card">
+        <h4>Pooler-safe queries</h4>
+        <p>Each statement goes out in one round trip, so a transaction-mode pooler such as PgBouncer cannot lose a prepared statement between steps.</p>
+      </div>
+      <div class="card">
+        <h4>Tabs, splits, light and dark</h4>
+        <p>One tab per database, kept with its query and results when you switch. Split to put two side by side. Light, dark or follow the system.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="compare">
+    <div class="kicker">Compared</div>
+    <h2>Where it fits among the Postgres clients you already know.</h2>
+    <p class="sub">PgClient does one thing: PostgreSQL. That focus is the trade. Here is where each tool stands on the basics.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Client</th><th>Licence</th><th>Databases</th><th>Shape</th><th>A good fit when</th></tr>
+        </thead>
+        <tbody>
+          <tr class="us"><td>PgClient</td><td>Open source, MIT</td><td>PostgreSQL</td><td>Small desktop app (Tauri and Rust)</td><td>You live in Postgres and want sessions, locks, metrics and plans one click from the editor.</td></tr>
+          <tr><td>pgAdmin</td><td>Open source</td><td>PostgreSQL</td><td>Web-based, runs as a desktop or server app</td><td>You administer servers: roles, backups, maintenance.</td></tr>
+          <tr><td>DBeaver</td><td>Open source Community edition, paid editions</td><td>Many</td><td>Java desktop app</td><td>You work across several database engines in one tool.</td></tr>
+          <tr><td>DataGrip</td><td>Commercial subscription</td><td>Many</td><td>JetBrains IDE</td><td>You want IDE-grade refactoring and live in other JetBrains tools.</td></tr>
+          <tr><td>TablePlus</td><td>Commercial licence, limited free use</td><td>Many</td><td>Native app</td><td>You want a fast, polished native client for several engines.</td></tr>
+          <tr><td>Postico</td><td>Commercial licence</td><td>PostgreSQL</td><td>Native macOS app</td><td>You want a simple, Mac-only Postgres client.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Facts about other products are as we understand them at the time of writing and change between versions. Check each project before you decide.</p>
+
+    <div class="honest">
+      <div class="card">
+        <h4>Where the others are ahead</h4>
+        <p>DBeaver, DataGrip and TablePlus handle other databases; PgClient never will. DataGrip has deeper refactoring and code analysis. pgAdmin covers server administration such as backup and restore, and PgClient does not. PgClient is young, and has not yet had years of use against odd corners of Postgres.</p>
+      </div>
+      <div class="card">
+        <h4>Where it is built differently</h4>
+        <p>The tools you need during an incident are in the same window as the editor: who is blocking whom, cache hit ratio, a cost-sized plan, and a colour that tells you it is production. The core is a plain Rust crate that knows nothing of windows, so another shell can drive it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="kicker">Get started</div>
+    <h2>Running in two minutes.</h2>
+    <p class="sub">macOS first. Windows and Linux builds are produced by the release workflow, but passwords are kept in the macOS Keychain only for now.</p>
+<pre><span class="c"># a throwaway Postgres to try it against (user, password and database: pgclient)</span>
+docker compose -f compose.test.yaml up -d --wait
+
+<span class="c"># build and run the desktop app</span>
+npm install &amp;&amp; npm --prefix web install
+npm run tauri dev
+
+<span class="c"># or install it into /Applications</span>
+./install.sh</pre>
+    <p class="fine">Add <code>localhost:5435</code>, user <code>pgclient</code>, password <code>pgclient</code> as a server, or list yours in <code>~/.pgclient/servers.json</code>.</p>
+  </section>
+
+  <footer>
+    <span>PgClient · MIT licence · © 2026 Mihai Perju</span>
+    <span><a href="https://github.com/MihaiPerju/pgclient">Source on GitHub</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,422 @@
+@import "@fontsource-variable/inter";
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Inter Variable", Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  /* The window is an app, not a page: nothing in it should be selectable by accident, except what is meant to be copied. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cm-editor,
+[role="table"],
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.cm-editor {
+  height: 100%;
+}
+
+::selection {
+  background: var(--pg-selection);
+}
+
+/* Thin bars in the colours of the page, instead of the chunky ones macOS shows when it is set to always show them. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pg-border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pg-border);
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pg-tertiary);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+}
+
+/* The corner of a box that is dragged to make it bigger, set in the padding below and beside the box, so it is under its buttons and not on them. */
+.pg-grip-corner {
+  position: absolute;
+  right: -14px;
+  bottom: -16px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0.6;
+  background: linear-gradient(135deg, transparent 0 45%, var(--pg-tertiary) 45% 55%, transparent 55% 70%, var(--pg-tertiary) 70% 80%, transparent 80%);
+}
+
+.pg-grip-corner:hover,
+.pg-grip-corner:focus-visible,
+.pg-grip-corner[data-active="true"] {
+  opacity: 1;
+  outline: none;
+}
+
+/* The editor theme asks for all the height there is, which with nothing sized above it is as tall as the text, and so never scrolls. */
+.pg-json-editor .cm-editor {
+  height: var(--editor-height);
+}
+
+/* The editors sit on the darkest surface, where the border colour is all but invisible. */
+.cm-scroller {
+  scrollbar-color: var(--pg-tertiary) transparent;
+}
+
+.cm-scroller::-webkit-scrollbar-thumb {
+  background: var(--pg-tertiary);
+  background-clip: padding-box;
+}
+
+.cm-scroller::-webkit-scrollbar-thumb:hover {
+  background: var(--pg-secondary);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.pg-row:hover,
+.pg-hover:hover {
+  background: var(--pg-hover);
+}
+
+.pg-row-button {
+  transition: background 0.1s;
+}
+
+/* The lines between the panes. They are one pixel wide, with a wider area around them that can be grabbed. */
+.pg-handle {
+  position: relative;
+  flex: none;
+  z-index: 5;
+  outline: none;
+  touch-action: none;
+  background: var(--pg-border-secondary);
+  transition: background 0.12s;
+}
+
+.pg-handle::before {
+  content: "";
+  position: absolute;
+}
+
+.pg-handle-vertical {
+  width: 1px;
+  cursor: col-resize;
+}
+
+.pg-handle-vertical::before {
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+
+.pg-handle-horizontal {
+  height: 1px;
+  cursor: row-resize;
+}
+
+.pg-handle-horizontal::before {
+  left: 0;
+  right: 0;
+  top: -4px;
+  bottom: -4px;
+}
+
+.pg-handle:hover,
+.pg-handle:focus-visible,
+.pg-handle[data-active="true"] {
+  background: var(--pg-accent);
+  box-shadow: 0 0 0 1px var(--pg-accent);
+}
+
+/* The edge of a column, which can be dragged. Only a thin line shows, and only when it is hovered or being dragged. */
+.pg-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -5px;
+  width: 9px;
+  z-index: 4;
+  cursor: col-resize;
+  touch-action: none;
+  outline: none;
+}
+
+.pg-grip:hover,
+.pg-grip[data-active="true"] {
+  background: linear-gradient(to right, transparent 4px, var(--pg-accent) 4px, var(--pg-accent) 5px, transparent 5px);
+}
+
+/* Room is short in a narrow window, so the little graphs go first. */
+@media (max-width: 1500px) {
+  .pg-spark {
+    display: none;
+  }
+}
+
+.pg-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 4px 8px 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--pg-border-secondary);
+}
+
+.pg-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  padding: 5px 8px 5px 10px;
+  border-radius: 0;
+  color: var(--pg-secondary);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* The buttons at the ends of the row are the height of a tab and in the middle of it, not pinned to the top. */
+.pg-tabs > .ant-btn {
+  align-self: center;
+  height: 26px;
+  width: 26px;
+  padding: 0;
+  border-radius: 0;
+}
+
+.pg-tab:hover {
+  background: var(--pg-hover);
+}
+
+.pg-tab[data-active="true"] {
+  color: var(--pg-heading);
+  background: var(--pg-container);
+  box-shadow: inset 0 2px 0 var(--tab-accent);
+}
+
+.pg-tab:focus-visible {
+  outline: 1px solid var(--tab-accent);
+  outline-offset: -1px;
+}
+
+.pg-tab-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 0;
+  background: var(--tab-accent);
+}
+
+.pg-tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pg-tab-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 9px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pg-tab:hover .pg-tab-close,
+.pg-tab[data-active="true"] .pg-tab-close,
+.pg-tab-close:focus-visible {
+  opacity: 0.7;
+}
+
+.pg-tab-close:hover {
+  opacity: 1;
+  background: var(--pg-fill, rgba(127, 127, 127, 0.2));
+}
+
+.pg-pane + .pg-pane {
+  border-left: 1px solid var(--pg-border);
+}
+
+/* The pane that is being worked in, when there are two, is told apart by a line along the top of its tabs. */
+.pg-pane[data-focused="true"] .pg-tabs {
+  box-shadow: inset 0 1px 0 var(--pg-border);
+}
+
+.pg-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--pg-secondary);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.pg-link:hover,
+.pg-link[aria-pressed="true"] {
+  color: var(--pg-heading);
+}
+
+/* The search bar of the editors: along the top, over the text, in the colours of the rest of the app. */
+/* The bar floats over the top right of the editor, so the text does not move when it opens. */
+.cm-panels-top {
+  position: absolute !important;
+  top: 6px;
+  right: 14px;
+  left: auto !important;
+  z-index: 5;
+}
+
+.pg-find {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: min(440px, calc(100vw - 48px));
+  padding: 4px 6px;
+  background: var(--pg-container);
+  border: 1px solid var(--pg-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.pg-find-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pg-find-row[hidden] {
+  display: none;
+}
+
+.pg-find-input {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--pg-layout);
+  border: 1px solid var(--pg-border);
+  border-radius: 0;
+  color: var(--pg-text);
+  font: inherit;
+  outline: none;
+}
+
+.pg-find-input:focus {
+  border-color: var(--pg-accent, #5e6ad2);
+}
+
+.pg-find-input[aria-invalid] {
+  border-color: #d03b3b;
+}
+
+.pg-find-count {
+  flex: none;
+  min-width: 56px;
+  color: var(--pg-secondary);
+  font-size: 11px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pg-find-count[data-state="none"] {
+  color: #d03b3b;
+}
+
+.pg-find-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--pg-secondary);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pg-find-button:hover {
+  background: var(--pg-hover);
+  color: var(--pg-heading);
+}
+
+.pg-find-button[aria-pressed="true"] {
+  background: var(--pg-selected, var(--pg-hover));
+  border-color: var(--pg-accent, #5e6ad2);
+  color: var(--pg-heading);
+}
+
+.pg-find-button[data-open="true"] {
+  transform: rotate(90deg);
+}
+
+.pg-find-text {
+  padding: 0 8px;
+}
+
+/* The bar for finding a column in a result, above the grid. */
+.pg-colfind {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--pg-border-secondary);
+}
+
+/* The letters of a column's name that were searched for. */
+.pg-colfind-mark {
+  padding: 0;
+  background: rgba(237, 161, 0, 0.35);
+  color: inherit;
+}
+
+/* A chart's own controls show when it is pointed at or has the keyboard, so a page of them stays calm. */
+.pg-chart .pg-chart-actions {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.pg-chart:hover .pg-chart-actions,
+.pg-chart:focus-within .pg-chart-actions {
+  opacity: 1;
+}

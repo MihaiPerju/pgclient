@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "servers": [
+    {
+      "name": "local docker",
+      "uri": "postgres://pgclient:pgclient@localhost:5435/pgclient_test",
+      "group": "local",
+      "environment": "local"
+    },
+    {
+      "name": "app (port-forward)",
+      "host": "localhost",
+      "port": 5433,
+      "user": "app",
+      "database": "appdb",
+      "group": "staging",
+      "tunnel": {
+        "command": [
+          "kubectl",
+          "--context",
+          "staging",
+          "-n",
+          "db",
+          "port-forward",
+          "svc/pg",
+          "5433:5432"
+        ]
+      },
+      "environment": "staging"
+    }
+  ]
+}
