@@ -1,0 +1,22 @@
+# Throwaway Postgres for the core's tests, on its own port so it never meets a real database.
+#
+#   docker compose -f compose.test.yaml up -d --wait
+#   cargo test
+#   docker compose -f compose.test.yaml down -v
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: pgclient
+      POSTGRES_PASSWORD: pgclient
+      POSTGRES_DB: pgclient_test
+    ports:
+      - "5435:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pgclient -d pgclient_test"]
+      interval: 1s
+      timeout: 3s
+      retries: 30

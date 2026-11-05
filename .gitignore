@@ -1,0 +1,6 @@
+target/
+node_modules/
+dist/
+src-tauri/gen/
+# Real servers files hold hostnames and, if exported with them, passwords.
+*.pgclient.json

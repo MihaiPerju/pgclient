@@ -1,0 +1,16 @@
+[package]
+name = "pgclient-desktop"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+pgclient-core = { path = "../crates/core" }
+tauri = { version = "2", features = [] }
+keyring = { version = "3", features = ["apple-native"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tauri-plugin-dialog = "2"
