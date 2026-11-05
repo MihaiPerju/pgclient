@@ -101,6 +101,26 @@
   #graph .wrap > div { max-width: 760px; }
   #graph figure { margin-top: 36px; }
 
+
+  .journey { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 30px; }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; opacity: .45; animation: lit 9s infinite; }
+  .step:nth-child(2) { animation-delay: 3s; }
+  .step:nth-child(3) { animation-delay: 6s; }
+  .step small { display: block; color: var(--muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .step b { display: block; margin-bottom: 4px; }
+  .step span { color: var(--muted); font-size: 14px; }
+  .step.bad { --glow: var(--prod); }
+  .step.good { --glow: #4cc38a; }
+  .step.start { --glow: var(--accent); }
+  @keyframes lit {
+    0%, 4% { opacity: .45; border-color: var(--line); }
+    10%, 30% { opacity: 1; border-color: var(--glow); box-shadow: 0 0 0 1px var(--glow) inset; }
+    38%, 100% { opacity: .45; border-color: var(--line); box-shadow: none; }
+  }
+  .zooms { display: grid; grid-template-columns: 1fr; gap: 40px; margin-top: 34px; }
+  .zooms figure img { width: 100%; height: auto; }
+  #tunnels .files { margin-top: 0; }
+
   .envs { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 18px; }
   .env { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; background: var(--panel); }
   .env i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
@@ -131,7 +151,7 @@
   footer { margin-top: 96px; padding: 34px 0 54px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 
   @media (max-width: 900px) {
-    .split, .split.wide, .pair { grid-template-columns: 1fr; gap: 28px; }
+    .split, .split.wide, .pair, .zooms, .journey { grid-template-columns: 1fr; gap: 28px; }
     nav .links a:not(:last-child) { display: none; }
     .dots { display: none; }
     .slide { min-height: 0; padding: 88px 0 56px; }
@@ -139,6 +159,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .hint span { animation: none; }
+    .step { animation: none; opacity: 1; }
   }
 </style>
 </head>
@@ -151,6 +172,8 @@
       <a href="#config">Config files</a>
       <a href="#environments">Environments</a>
       <a href="#graph">Graph</a>
+      <a href="#tunnels">Tunnels</a>
+      <a href="#zoom">Zoom</a>
       <a href="#compare">Compared</a>
       <a href="https://github.com/MihaiPerju/pgclient">GitHub</a>
     </div>
@@ -162,6 +185,8 @@
   <a href="#config" aria-label="Problem 1: config files"></a>
   <a href="#environments" aria-label="Problem 2: environments"></a>
   <a href="#graph" aria-label="Problem 3: graph"></a>
+  <a href="#tunnels" aria-label="Problem 4: tunnels"></a>
+  <a href="#zoom" aria-label="Problem 5: zoom"></a>
 </div>
 
 <main>
@@ -182,7 +207,7 @@
   <section class="slide" id="config">
     <div class="wrap split">
       <div>
-        <div class="eyebrow">Problem <span class="num">01 / 03</span></div>
+        <div class="eyebrow">Problem <span class="num">01 / 05</span></div>
         <p class="problem">“I keep entering and re-entering the same connection details and passwords, in every client, on every machine.”</p>
         <h2>Everything is a <em>config file</em>.</h2>
         <p>Your servers live in one JSON file, the way <code>kubectl</code> reads <code>~/.kube/config</code>. Passwords come from <code>~/.pgpass</code>, the way <code>psql</code> reads it. Nothing to type.</p>
@@ -221,7 +246,7 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
 
   <section class="slide" id="environments">
     <div class="wrap">
-      <div class="eyebrow">Problem <span class="num">02 / 03</span></div>
+      <div class="eyebrow">Problem <span class="num">02 / 05</span></div>
       <p class="problem">“Two windows, the same table names, and one of them is production. I only noticed after pressing Run.”</p>
       <h2>Prod is <em style="color: var(--prod)">red</em>.</h2>
       <p style="max-width: 720px;">Tag a server with an environment and the whole window takes its colour: the Run button, the active tab, the server box, even the SQL highlighting. You know where you are before you press anything.</p>
@@ -248,7 +273,7 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
   <section class="slide" id="graph">
     <div class="wrap">
       <div>
-        <div class="eyebrow">Problem <span class="num">03 / 03</span></div>
+        <div class="eyebrow">Problem <span class="num">03 / 05</span></div>
         <p class="problem">“To follow a foreign key I have to write the next query, and the one after that, and lose track of where I started.”</p>
         <h2>Explore your data as a <em>graph</em>.</h2>
         <p>Run a query on a table and switch the result to a graph. Each card is a row. Open its links and the rows it points to, and the rows that point at it, appear beside it.</p>
@@ -262,6 +287,81 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
         <img class="shot" src="docs/screenshots/graph.webp" alt="A graph from one order: its customer, a shipment, two order items and the two products they refer to, joined by foreign-key lines" width="2225" height="1130" loading="lazy">
         <figcaption>One order, opened out through its foreign keys. The data is invented.</figcaption>
       </figure>
+    </div>
+  </section>
+
+  <section class="slide" id="tunnels">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow">Problem <span class="num">04 / 05</span></div>
+        <p class="problem">“A few hours in, the connection dies. The port-forward lost its login, and I have to find the terminal and open it again.”</p>
+        <h2>The tunnel <em>opens itself</em>.</h2>
+        <p>Give a server a tunnel command. PgClient runs it when you connect, if the port is not already answering, and brings it back when it drops. It can be any command you would have typed: <code>kubectl port-forward</code>, a <code>gcloud</code> IAP tunnel, an <code>aws ssm</code> session.</p>
+        <ul>
+          <li><b>Every query checks it.</b> A tunnel that has died is started again by the next one.</li>
+          <li><b>A forward that outlived its login</b> still answers but lets nothing through. That is detected, and the tunnel is restarted once.</li>
+          <li><b>Found from the Dock.</b> The app asks your login shell for its <code>PATH</code>, so <code>kubectl</code>, <code>gcloud</code> and <code>aws</code> are found.</li>
+          <li><b>Honest when it fails.</b> You see what the command said, not a bare timeout.</li>
+          <li><b>Yours stay yours.</b> Something already answering on the port is left alone, and every tunnel the app started is stopped when it quits.</li>
+          <li><b>Safe to paste.</b> Tunnels are read only from the servers file, so an import can never make the app run a command.</li>
+        </ul>
+      </div>
+      <div class="files">
+        <div class="file">
+          <header>kubectl · inside a server entry</header>
+<pre><span class="k">"tunnel"</span>: { <span class="k">"command"</span>: [
+  <span class="s">"kubectl"</span>, <span class="s">"--context"</span>, <span class="s">"staging"</span>, <span class="s">"-n"</span>, <span class="s">"db"</span>,
+  <span class="s">"port-forward"</span>, <span class="s">"svc/pg"</span>, <span class="s">"5433:5432"</span>
+] }</pre>
+        </div>
+        <div class="file">
+          <header>gcloud · inside a server entry</header>
+<pre><span class="k">"tunnel"</span>: { <span class="k">"command"</span>: [
+  <span class="s">"gcloud"</span>, <span class="s">"compute"</span>, <span class="s">"start-iap-tunnel"</span>, <span class="s">"db-vm"</span>, <span class="s">"5432"</span>,
+  <span class="s">"--local-host-port=localhost:5433"</span>, <span class="s">"--zone"</span>, <span class="s">"europe-west1-b"</span>
+] }</pre>
+        </div>
+        <div class="file">
+          <header>aws · inside a server entry</header>
+<pre><span class="k">"tunnel"</span>: { <span class="k">"command"</span>: [
+  <span class="s">"aws"</span>, <span class="s">"ssm"</span>, <span class="s">"start-session"</span>, <span class="s">"--target"</span>, <span class="s">"i-0123456789abcdef0"</span>,
+  <span class="s">"--document-name"</span>, <span class="s">"AWS-StartPortForwardingSessionToRemoteHost"</span>,
+  <span class="s">"--parameters"</span>,
+  <span class="s">"host=db.example.internal,portNumber=5432,localPortNumber=5433"</span>
+] }</pre>
+        </div>
+        <div class="journey" aria-label="How a day with a tunnel goes">
+          <div class="step start"><small>Morning</small><b>You connect</b><span>The port is closed, so the tunnel command runs.</span></div>
+          <div class="step bad"><small>Afternoon</small><b>The login expires</b><span>The forward dies, or answers and passes nothing.</span></div>
+          <div class="step good"><small>Next query</small><b>It is back</b><span>The tunnel is started again. You never left the editor.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="zoom">
+    <div class="wrap">
+      <div class="eyebrow">Problem <span class="num">05 / 05</span></div>
+      <p class="problem">“The result never fits its pane. I want to see all of it for a moment, and then have my editor back.”</p>
+      <h2>Pinch to <em>grow</em> it.</h2>
+      <p style="max-width: 760px;">Pinch out over a result, table or graph, and it grows from where it sits as your fingers spread, until it fills the window. Stop halfway and it stays that size. Pinch back, or press <code>Esc</code>, and it returns to its place.</p>
+      <div class="zooms">
+        <figure>
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/pinch-table-still.webp">
+            <img class="shot" src="docs/screenshots/pinch-table.webp" alt="A table of orders growing from the bottom pane until it fills the whole window, then shrinking back" width="1860" height="1154" loading="lazy">
+          </picture>
+          <figcaption><b>Table.</b> More rows, and the last column fits.</figcaption>
+        </figure>
+        <figure>
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/pinch-graph-still.webp">
+            <img class="shot" src="docs/screenshots/pinch-graph.webp" alt="A graph of one order and its linked rows growing from the bottom pane until it fills the window, its cards re-flowing as it grows" width="1860" height="1154" loading="lazy">
+          </picture>
+          <figcaption><b>Graph.</b> It has room to lay every card out.</figcaption>
+        </figure>
+      </div>
+      <p class="fine">The same pinch works on a trackpad in the app. The animation is the real screen, played back frame by frame from a pinch driven step by step. The data is invented.</p>
     </div>
   </section>
 
