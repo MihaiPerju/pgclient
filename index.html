@@ -123,6 +123,12 @@
   .duo a.open { display: block; cursor: zoom-in; }
   .duo figcaption { font-size: 14px; line-height: 1.5; }
 
+  ul.two { columns: 2; column-gap: 40px; margin: 6px 0 0; padding-left: 20px; max-width: 1100px; }
+  ul.two li { break-inside: avoid; margin: 7px 0; }
+  figure.solo { margin-top: 34px; }
+  figure.solo img { width: 100%; height: auto; }
+  figure.solo a.open { display: block; cursor: zoom-in; }
+
   .envs { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 18px; }
   .env { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; background: var(--panel); }
   .env i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
@@ -154,6 +160,7 @@
 
   @media (max-width: 900px) {
     .split, .split.wide, .pair, .duo, .journey { grid-template-columns: 1fr; gap: 28px; }
+    ul.two { columns: 1; }
     nav .links a:not(:last-child) { display: none; }
     .dots { display: none; }
     .slide { min-height: 0; padding: 88px 0 56px; }
@@ -176,6 +183,7 @@
       <a href="#graph">Graph</a>
       <a href="#tunnels">Tunnels</a>
       <a href="#zoom">Zoom</a>
+      <a href="#dates">Dates</a>
       <a href="#compare">Compared</a>
       <a href="https://github.com/MihaiPerju/pgclient">GitHub</a>
     </div>
@@ -189,6 +197,7 @@
   <a href="#graph" aria-label="Problem 3: graph"></a>
   <a href="#tunnels" aria-label="Problem 4: tunnels"></a>
   <a href="#zoom" aria-label="Problem 5: zoom"></a>
+  <a href="#dates" aria-label="Problem 6: readable dates"></a>
 </div>
 
 <main>
@@ -209,7 +218,7 @@
   <section class="slide" id="config">
     <div class="wrap split">
       <div>
-        <div class="eyebrow">Problem <span class="num">01 / 05</span></div>
+        <div class="eyebrow">Problem <span class="num">01 / 06</span></div>
         <p class="problem">“I keep entering and re-entering the same connection details and passwords, in every client, on every machine.”</p>
         <h2>Everything is a <em>config file</em>.</h2>
         <p>Your servers live in one JSON file, the way <code>kubectl</code> reads <code>~/.kube/config</code>. Passwords come from <code>~/.pgpass</code>, the way <code>psql</code> reads it. Nothing to type.</p>
@@ -248,7 +257,7 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
 
   <section class="slide" id="environments">
     <div class="wrap">
-      <div class="eyebrow">Problem <span class="num">02 / 05</span></div>
+      <div class="eyebrow">Problem <span class="num">02 / 06</span></div>
       <p class="problem">“Two windows, the same table names, and one of them is production. I only noticed after pressing Run.”</p>
       <h2>Prod is <em style="color: var(--prod)">red</em>.</h2>
       <p style="max-width: 720px;">Tag a server with an environment and the whole window takes its colour: the Run button, the active tab, the server box, even the SQL highlighting. You know where you are before you press anything.</p>
@@ -274,7 +283,7 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
 
   <section class="slide" id="graph">
     <div class="wrap wide">
-      <div class="eyebrow">Problem <span class="num">03 / 05</span></div>
+      <div class="eyebrow">Problem <span class="num">03 / 06</span></div>
       <p class="problem">“To follow a foreign key I have to write the next query, and the one after that, and lose track of where I started.”</p>
       <h2>Follow the keys. See the <em>graph</em>.</h2>
       <p style="max-width: 760px;">Two ways to walk from a row to the rows around it, and neither means writing a join.</p>
@@ -305,7 +314,7 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
   <section class="slide" id="tunnels">
     <div class="wrap split">
       <div>
-        <div class="eyebrow">Problem <span class="num">04 / 05</span></div>
+        <div class="eyebrow">Problem <span class="num">04 / 06</span></div>
         <p class="problem">“A few hours in, the connection dies. The port-forward lost its login, and I have to find the terminal and open it again.”</p>
         <h2>The tunnel <em>opens itself</em>.</h2>
         <p>Give a server a tunnel command. PgClient runs it when you connect, if the port is not already answering, and brings it back when it drops. It can be any command you would have typed: <code>kubectl port-forward</code>, a <code>gcloud</code> IAP tunnel, an <code>aws ssm</code> session.</p>
@@ -353,7 +362,7 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
 
   <section class="slide" id="zoom">
     <div class="wrap wide">
-      <div class="eyebrow">Problem <span class="num">05 / 05</span></div>
+      <div class="eyebrow">Problem <span class="num">05 / 06</span></div>
       <p class="problem">“The result never fits its pane. I want to see all of it for a moment, and then have my editor back.”</p>
       <h2>Pinch to <em>grow</em> it.</h2>
       <p style="max-width: 760px;">Pinch out over a result, table or graph, and it grows from where it sits as your fingers spread, until it fills the window. Stop halfway and it stays that size. Pinch back, or press <code>Esc</code>, and it returns to its place.</p>
@@ -378,6 +387,31 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
         </figure>
       </div>
       <p class="fine">The same pinch works on a trackpad in the app. These are the real screens, played back frame by frame from a pinch driven step by step. Click one to open it full size. The data is invented.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="dates">
+    <div class="wrap">
+      <div class="eyebrow">Problem <span class="num">06 / 06</span></div>
+      <p class="problem">“<code>2026-04-14 21:34:00+00</code>. I read it, then do the time-zone sum in my head. Every time.”</p>
+      <h2>Dates you can <em>read</em>.</h2>
+      <p style="max-width: 760px;">One toggle turns date and timestamp columns into plain dates, in the time zone of your screen. Switch it off and you are back to what Postgres sent.</p>
+      <ul class="two">
+        <li><b>In your time zone.</b> A timestamp with a zone is shown in the zone of your screen. This screen is set to New York, so <code>21:34+00</code> reads <code>5:34:00 PM EDT</code>.</li>
+        <li><b>Honest about what it does not know.</b> A timestamp without a zone is never shifted. <code>NULL</code>, <code>infinity</code> and anything that is not a date stay exactly as they are.</li>
+        <li><b>Display only.</b> What you copy, export or edit is still the real value.</li>
+        <li><b>Remembered.</b> The toggle stays where you left it between runs, and works in the table and the graph.</li>
+      </ul>
+      <figure class="solo">
+        <a class="open" href="docs/screenshots/readable-dates.webp" target="_blank" rel="noopener" title="Open full size">
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/readable-dates-still.webp">
+            <img class="shot" src="docs/screenshots/readable-dates.webp" alt="A table of shipments whose timestamps change from 2026-04-14 21:34:00+00 to Apr 14, 2026, 5:34:00 PM EDT when the Readable dates button is switched on; an empty delivery date stays NULL" width="2000" height="1080" loading="lazy">
+          </picture>
+        </a>
+        <figcaption><b>Readable dates, off and on.</b> The same rows; only how the dates are drawn changes.</figcaption>
+      </figure>
+      <p class="fine">It reads each column's type from the table a result came from, so it applies to results read from one table. A view or a join shows the raw value. The data is invented.</p>
     </div>
   </section>
 
