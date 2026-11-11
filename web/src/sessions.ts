@@ -2,7 +2,7 @@ import type { Session } from "./gateway";
 
 /** Something about a session that is often why the database is in trouble. */
 export interface Flag {
-  kind: "blocking" | "blocked" | "idle-in-transaction" | "long";
+  kind: "blocking" | "blocked" | "idle-in-transaction" | "long" | "long-transaction";
   text: string;
 }
 
@@ -36,11 +36,18 @@ export function flagsOf(session: Session, all: Session[]): Flag[] {
   const waiting = all.filter((other) => other.blocked_by.includes(session.pid)).length;
   if (waiting > 0) flags.push({ kind: "blocking", text: `Blocking ${plural(waiting, "session")}` });
   if (session.blocked_by.length > 0) flags.push({ kind: "blocked", text: `Waiting for a lock held by ${session.blocked_by.join(", ")}` });
-  if (session.state?.startsWith("idle in transaction") && (session.state_seconds ?? 0) >= LONG_SECONDS) {
+  const idleLong = session.state?.startsWith("idle in transaction") && (session.state_seconds ?? 0) >= LONG_SECONDS;
+  if (idleLong) {
     flags.push({ kind: "idle-in-transaction", text: `Idle in a transaction for ${howLong(session.state_seconds!)}, keeping its locks` });
   }
   if (session.state === "active" && session.blocked_by.length === 0 && (session.query_seconds ?? 0) >= LONG_SECONDS) {
     flags.push({ kind: "long", text: `Running for ${howLong(session.query_seconds!)}` });
+  }
+  // Said only when the transaction began before what the session is doing now, so a slow query on its own is not said twice.
+  const since = session.state === "active" ? session.query_seconds : session.state_seconds;
+  const open = session.transaction_seconds ?? 0;
+  if (!idleLong && open >= LONG_SECONDS && open > (since ?? 0) + 1) {
+    flags.push({ kind: "long-transaction", text: `In a transaction open for ${howLong(open)}` });
   }
   return flags;
 }
@@ -54,11 +61,11 @@ function rank(session: Session, all: Session[]): number {
   return 4;
 }
 
-/** Within a rank, the longest first, except the idle, which go most recently busy first. */
+/** Within a rank, the longest first, by transaction where one is open, except the idle, which go most recently busy first. */
 function age(session: Session, place: number): number {
   if (place === 3) return -(session.transaction_seconds ?? 0);
   if (place === 4) return session.state_seconds ?? 0;
-  return -(session.query_seconds ?? 0);
+  return -(session.transaction_seconds ?? session.query_seconds ?? 0);
 }
 
 /** The sessions in the order to look at them, and how many idle ones are left out unless asked for. */

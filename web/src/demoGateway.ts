@@ -80,6 +80,7 @@ function demoMetrics(server: string, database: string): Metrics {
     idle_in_transaction: looks % 7 < 2 ? 1 + (looks % 3) : 0,
     max_connections: 100,
     longest_active_seconds: 1 + Math.random() * 9,
+    longest_transaction_seconds: 20 + Math.random() * 60,
     blocked: 0,
     transactions,
     rollbacks: Math.round(transactions * 0.004),

@@ -11,6 +11,7 @@ export interface Derived {
   idle: number;
   idleInTransaction: number;
   longestActive: number | null;
+  longestTransaction: number | null;
   blocked: number;
   /** Null until there are two snapshots to take the change between. */
   tps: number | null;
@@ -23,7 +24,7 @@ export interface Derived {
 }
 
 export type Tone = "ok" | "warn" | "bad" | "quiet";
-export type Gauge = "connections" | "longest" | "blocked" | "cache" | "idleInTransaction" | "deadlocks";
+export type Gauge = "connections" | "longest" | "transaction" | "blocked" | "cache" | "idleInTransaction" | "deadlocks";
 
 /** Fewer blocks than this and a ratio of hits is just noise. */
 const ENOUGH_READS = 1000;
@@ -42,6 +43,7 @@ export function derive(previous: Metrics | null, next: Metrics, first: Metrics):
     idle: next.idle,
     idleInTransaction: next.idle_in_transaction,
     longestActive: next.longest_active_seconds,
+    longestTransaction: next.longest_transaction_seconds,
     blocked: next.blocked,
     tps: previous && seconds > 0 && transactions >= 0 ? transactions / seconds : null,
     rollbackShare: previous && transactions > 0 && rollbacks >= 0 ? rollbacks / transactions : null,
@@ -63,6 +65,9 @@ export function tone(gauge: Gauge, now: Derived): Tone {
     case "longest":
       if (!now.fullView) return "quiet";
       return now.longestActive === null ? "ok" : now.longestActive >= 300 ? "bad" : now.longestActive >= 30 ? "warn" : "ok";
+    case "transaction":
+      if (!now.fullView) return "quiet";
+      return now.longestTransaction === null ? "ok" : now.longestTransaction >= 300 ? "bad" : now.longestTransaction >= 60 ? "warn" : "ok";
     case "blocked":
       if (!now.fullView) return "quiet";
       return now.blocked >= 5 ? "bad" : now.blocked >= 1 ? "warn" : "ok";

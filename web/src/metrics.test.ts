@@ -59,6 +59,10 @@ describe("working out how the database is doing from its snapshots", () => {
     expect(now).toMatchObject({ active: 3, idle: 7, idleInTransaction: 2, blocked: 1, longestActive: 42 });
   });
 
+  test("the oldest open transaction is passed on as it is", () => {
+    expect(derive(null, metricsSnapshot({ longest_transaction_seconds: 95 }), first).longestTransaction).toBe(95);
+  });
+
   test("whether the whole server could be seen is passed on too", () => {
     expect(derive(null, metricsSnapshot({ full_view: false }), first).fullView).toBe(false);
   });
@@ -78,6 +82,13 @@ describe("how worried to look", () => {
     expect(tone("longest", read({ longest_active_seconds: 45 }))).toBe("warn");
     expect(tone("longest", read({ longest_active_seconds: 400 }))).toBe("bad");
     expect(tone("longest", read({ longest_active_seconds: null }))).toBe("ok");
+  });
+
+  test("a transaction open for a minute is a warning, and for minutes is bad, since it holds locks and holds vacuum back", () => {
+    expect(tone("transaction", read({ longest_transaction_seconds: 5 }))).toBe("ok");
+    expect(tone("transaction", read({ longest_transaction_seconds: 75 }))).toBe("warn");
+    expect(tone("transaction", read({ longest_transaction_seconds: 400 }))).toBe("bad");
+    expect(tone("transaction", read({ longest_transaction_seconds: null }))).toBe("ok");
   });
 
   test("nothing blocked is fine, and anything waiting on a lock is not", () => {
@@ -109,6 +120,7 @@ describe("how worried to look", () => {
 
     expect(tone("blocked", limited)).toBe("quiet");
     expect(tone("longest", limited)).toBe("quiet");
+    expect(tone("transaction", limited)).toBe("quiet");
     expect(tone("idleInTransaction", limited)).toBe("quiet");
     expect(tone("connections", limited)).toBe("ok");
   });

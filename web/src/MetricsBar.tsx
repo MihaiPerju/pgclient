@@ -6,7 +6,7 @@ import { formatDuration, formatRate, tone, type Tone } from "./metrics";
 import type { MetricsState } from "./useMetrics";
 
 const LIMITED_VIEW =
-  "You can see how many connections there are, but not what other people's sessions are doing, so active, longest query, blocked and idle in transaction cover only your own.";
+  "You can see how many connections there are, but not what other people's sessions are doing, so active, longest query, longest transaction, blocked and idle in transaction cover only your own.";
 
 function Sparkline({ values, color }: { values: number[]; color: string }) {
   if (values.length < 2) return null;
@@ -76,6 +76,12 @@ export function MetricsBar({ state }: { state: MetricsState }) {
         description={now ? `Active queries: ${now.active}${now.longestActive !== null ? `, the longest running for ${formatDuration(now.longestActive)}` : ""}` : "Active queries: not known yet"}
         value={now ? `${now.active}${now.longestActive !== null ? ` · ${formatDuration(now.longestActive)}` : ""}` : dash}
         tone={now ? tone("longest", now) : "quiet"}
+      />
+      <Chip
+        label="Longest tx"
+        description={now ? `Longest open transaction: ${now.longestTransaction !== null ? formatDuration(now.longestTransaction) : "none open"}` : "Longest open transaction: not known yet"}
+        value={now ? (now.longestTransaction !== null ? formatDuration(now.longestTransaction) : "none") : dash}
+        tone={now ? tone("transaction", now) : "quiet"}
       />
       <Chip label="Blocked" description={now ? `Blocked sessions: ${now.blocked}` : "Blocked sessions: not known yet"} value={now ? now.blocked : dash} tone={now ? tone("blocked", now) : "quiet"} />
       <Chip

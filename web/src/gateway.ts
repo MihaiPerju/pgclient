@@ -43,6 +43,8 @@ export interface Metrics {
   idle_in_transaction: number;
   max_connections: number;
   longest_active_seconds: number | null;
+  /** How long the oldest open transaction has been open, running or idle, or null when none is. */
+  longest_transaction_seconds: number | null;
   blocked: number;
   transactions: number;
   rollbacks: number;

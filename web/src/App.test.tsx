@@ -1170,7 +1170,7 @@ describe("the page of charts", () => {
 
     expect(await screen.findByRole("region", { name: "Metrics of app" })).toBeInTheDocument();
     expect(screen.queryByLabelText("SQL")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("figure")).toHaveLength(6);
+    expect(screen.getAllByRole("figure")).toHaveLength(7);
 
     await switchTo("Query");
 

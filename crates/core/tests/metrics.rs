@@ -112,6 +112,21 @@ async fn the_longest_running_query_is_timed() {
 }
 
 #[tokio::test]
+async fn the_longest_open_transaction_is_timed_however_quick_its_queries_are() {
+    let open = admin().await;
+    open.batch_execute("begin; select 1").await.unwrap();
+    tokio::time::sleep(Duration::from_millis(1300)).await;
+
+    let snapshot = sample().await;
+
+    let longest = snapshot
+        .longest_transaction_seconds
+        .expect("a transaction is open");
+    assert!(longest >= 1.0, "{longest}");
+    open.batch_execute("rollback").await.unwrap();
+}
+
+#[tokio::test]
 async fn a_session_waiting_on_a_lock_is_counted_as_blocked() {
     run_sql("drop table if exists metrics_locked; create table metrics_locked (id int)").await;
     let holder = admin().await;

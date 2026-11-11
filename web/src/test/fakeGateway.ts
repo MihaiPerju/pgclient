@@ -21,6 +21,7 @@ export const metricsSnapshot = (overrides: Partial<Metrics> = {}): Metrics => ({
   idle_in_transaction: 0,
   max_connections: 100,
   longest_active_seconds: 1.5,
+  longest_transaction_seconds: 1.5,
   blocked: 0,
   transactions: 100_000,
   rollbacks: 100,

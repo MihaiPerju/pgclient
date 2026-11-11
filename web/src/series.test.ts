@@ -17,6 +17,11 @@ describe("a point on the charts", () => {
     expect(now).toMatchObject({ commits: 100, rollbacks: 2, inserted: 10, updated: 0, deleted: 0 });
   });
 
+  test("the oldest open transaction is known at once, and is nothing when none is open", () => {
+    expect(point(null, metricsSnapshot({ longest_transaction_seconds: 42 })).longestTransaction).toBe(42);
+    expect(point(null, metricsSnapshot({ longest_transaction_seconds: null })).longestTransaction).toBeNull();
+  });
+
   test("wal records a second are the change in the server's count of them", () => {
     const now = point(first, later({ wal_records: (first.wal_records ?? 0) + 2500 }));
 

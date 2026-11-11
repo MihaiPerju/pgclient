@@ -37,6 +37,21 @@ describe("what is worth pointing out about a session", () => {
     const slow = session(1, { state: "active", query_seconds: 125 });
     expect(flagsOf(slow, [slow])).toEqual([{ kind: "long", text: "Running for 2 min 5 s" }]);
   });
+
+  it("a transaction open for a minute or more is long, however quick the query it is running now", () => {
+    const busy = session(1, { state: "active", query_seconds: 0.2, transaction_seconds: 600 });
+    expect(flagsOf(busy, [busy])).toEqual([{ kind: "long-transaction", text: "In a transaction open for 10 min" }]);
+  });
+
+  it("a slow query that is its whole transaction is said once, as a slow query", () => {
+    const slow = session(1, { state: "active", query_seconds: 125, transaction_seconds: 125.3 });
+    expect(flagsOf(slow, [slow]).map((flag) => flag.kind)).toEqual(["long"]);
+  });
+
+  it("a transaction open for long that keeps going idle briefly is long too", () => {
+    const sipping = session(1, { state: "idle in transaction", state_seconds: 3, transaction_seconds: 185 });
+    expect(flagsOf(sipping, [sipping])).toEqual([{ kind: "long-transaction", text: "In a transaction open for 3 min 5 s" }]);
+  });
 });
 
 describe("the order they are listed in", () => {
@@ -53,6 +68,11 @@ describe("the order they are listed in", () => {
     const { shown, idle } = arrange(all, false);
     expect(shown.map((one) => one.pid)).toEqual([5, 4, 3, 2]);
     expect(idle).toBe(2);
+  });
+
+  it("puts the running ones in order of how long their transaction has been open, else their query", () => {
+    const running = [session(1, { state: "active", query_seconds: 40 }), session(2, { state: "active", query_seconds: 1, transaction_seconds: 900 })];
+    expect(arrange(running, false).shown.map((one) => one.pid)).toEqual([2, 1]);
   });
 
   it("can show the idle too, at the end", () => {

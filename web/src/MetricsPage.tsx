@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEven
 
 import { chartAt, loadOrder, moveBy, moveTo, saveOrder } from "./chartOrder";
 import { Magnified, type Magnify } from "./Magnified";
-import { formatRate } from "./metrics";
+import { formatDuration, formatRate } from "./metrics";
 import { cacheShare, type Point } from "./series";
 import { TimeChart, type Series } from "./TimeChart";
 import type { MetricsState } from "./useMetrics";
@@ -58,6 +58,18 @@ export function MetricsPage({ state, database }: { state: MetricsState; database
           ["idleInTransaction", "Idle in transaction", "orange", (point) => point.idleInTransaction],
           ["idle", "Idle", "aqua", (point) => point.idle],
         )}
+      />
+    ),
+    longestTransaction: (handle, magnify) => (
+      <TimeChart
+        title="Longest open transaction"
+        caption="how long the oldest has been open, running or idle"
+        kind="line"
+        times={times}
+        format={formatDuration}
+        handle={handle}
+        magnify={magnify}
+        series={lines(["longestTransaction", "Open for", "orange", (point) => point.longestTransaction])}
       />
     ),
     tuplesIn: (handle, magnify) => (
@@ -123,7 +135,7 @@ export function MetricsPage({ state, database }: { state: MetricsState; database
       />
     ),
   };
-  const titles: Record<string, string> = { transactions: "Transactions per second", connections: "Connections", tuplesIn: "Tuples in", tuplesOut: "Tuples out", wal: "WAL records", blocks: "Block I/O" };
+  const titles: Record<string, string> = { transactions: "Transactions per second", connections: "Connections", longestTransaction: "Longest open transaction", tuplesIn: "Tuples in", tuplesOut: "Tuples out", wal: "WAL records", blocks: "Block I/O" };
 
   const [order, setOrder] = useState(() => loadOrder(Object.keys(charts)));
   const [dragged, setDragged] = useState<string | null>(null);

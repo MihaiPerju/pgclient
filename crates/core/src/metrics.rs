@@ -14,6 +14,8 @@ pub struct MetricsSnapshot {
     pub idle_in_transaction: i64,
     pub max_connections: i64,
     pub longest_active_seconds: Option<f64>,
+    /// How long the oldest open transaction has been open, whether it is running something or idle.
+    pub longest_transaction_seconds: Option<f64>,
     pub blocked: i64,
     /// Commits and rollbacks, across the whole server.
     pub transactions: i64,
@@ -48,6 +50,8 @@ select
   current_setting('max_connections')::int8 as max_connections,
   (select extract(epoch from max(now() - query_start))::float8 from pg_stat_activity
      where backend_type = 'client backend' and state = 'active' and pid <> pg_backend_pid()) as longest_active_seconds,
+  (select extract(epoch from max(now() - xact_start))::float8 from pg_stat_activity
+     where backend_type = 'client backend' and xact_start is not null and pid <> pg_backend_pid()) as longest_transaction_seconds,
   (select count(*) from pg_stat_activity where backend_type = 'client backend' and wait_event_type = 'Lock')::int8 as blocked,
   (select coalesce(sum(xact_commit + xact_rollback), 0)::int8 from pg_stat_database) as transactions,
   (select coalesce(sum(xact_rollback), 0)::int8 from pg_stat_database) as rollbacks,
@@ -91,6 +95,7 @@ pub(crate) async fn sample(client: &Client) -> Result<MetricsSnapshot, Error> {
         idle_in_transaction: row.get("idle_in_transaction"),
         max_connections: row.get("max_connections"),
         longest_active_seconds: row.get("longest_active_seconds"),
+        longest_transaction_seconds: row.get("longest_transaction_seconds"),
         blocked: row.get("blocked"),
         transactions: row.get("transactions"),
         rollbacks: row.get("rollbacks"),

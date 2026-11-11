@@ -42,6 +42,18 @@ describe("what it shows", () => {
     expect(gauge(/Active queries: 0/)).not.toHaveTextContent(/\ds/);
   });
 
+  test("how long the oldest open transaction has been open", () => {
+    show({ longest_transaction_seconds: 125 });
+
+    expect(gauge("Longest open transaction: 2m 5s")).toHaveTextContent("2m 5s");
+  });
+
+  test("with no transaction open it says so rather than a time", () => {
+    show({ longest_transaction_seconds: null });
+
+    expect(gauge("Longest open transaction: none open")).not.toHaveTextContent(/\ds/);
+  });
+
   test("the sessions that are waiting for a lock", () => {
     show({ blocked: 2 });
 

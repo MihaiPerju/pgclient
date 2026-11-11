@@ -11,6 +11,7 @@ export interface Point {
   active: number;
   idle: number;
   idleInTransaction: number;
+  longestTransaction: number | null;
   maxConnections: number;
   inserted: number | null;
   updated: number | null;
@@ -36,6 +37,7 @@ export function point(previous: Metrics | null, next: Metrics): Point {
     active: next.active,
     idle: next.idle,
     idleInTransaction: next.idle_in_transaction,
+    longestTransaction: next.longest_transaction_seconds,
     maxConnections: next.max_connections,
     inserted: per("tuples_inserted"),
     updated: per("tuples_updated"),
