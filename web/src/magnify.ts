@@ -6,8 +6,10 @@ export const HOLD = { least: 0.1, full: 0.92, range: 0.8 };
 const MOTION_MS = 220;
 /** How far from the window's edges the surface stops when full. */
 const INSET = 24;
-/** How long after the last ctrl-wheel step a pinch counts as stopped. */
+/** How long after the last ctrl-wheel or ⌘-wheel step a pinch counts as stopped. */
 const WHEEL_END_MS = 180;
+/** A wheel notch is a big jump next to a trackpad's small steps, so each step is capped: a notch is about a sixth of the way. */
+const WHEEL_STEP = 10;
 
 export interface Rect {
   left: number;
@@ -108,17 +110,20 @@ export function useMagnify(place: RefObject<HTMLElement | null>) {
       else if (event.type === "gesturechange") move((event as Event & { scale: number }).scale);
       else end();
     };
-    // Other browsers send it as a wheel with the control key down.
+    // Other browsers send it as a wheel with the control key down; ⌘ and the mouse wheel do the same, as in the metrics app.
     let wheelScale = 1;
     let wheelEnd: number | undefined;
     const wheel = (event: WheelEvent) => {
-      if (!event.ctrlKey || (!pinch.current && !inside(event.target))) return;
+      if ((!event.ctrlKey && !event.metaKey) || (!pinch.current && !inside(event.target))) return;
       event.preventDefault();
       if (!pinch.current) {
         wheelScale = 1;
         start();
       }
-      wheelScale *= Math.exp(-event.deltaY * 0.012);
+      // ⌘ grows it as the wheel turns down; a pinch keeps the direction of the fingers.
+      const turned = event.ctrlKey ? event.deltaY : -event.deltaY;
+      const step = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? turned * 16 : turned;
+      wheelScale *= Math.exp(-Math.max(-WHEEL_STEP, Math.min(WHEEL_STEP, step)) * 0.012);
       move(wheelScale);
       window.clearTimeout(wheelEnd);
       wheelEnd = window.setTimeout(end, WHEEL_END_MS);

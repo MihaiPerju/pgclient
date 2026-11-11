@@ -48,6 +48,29 @@ test("a pinch grows it and it stays where the fingers stop; a small one puts it 
   await waitFor(() => expect(big()).not.toBeInTheDocument());
 });
 
+test("⌘ with the mouse wheel grows it as the wheel turns down and puts it back as it turns up, as in the metrics app", async () => {
+  const { surface } = setup();
+
+  fireEvent.wheel(surface, { metaKey: true, deltaY: 100 });
+  const dialog = big();
+  expect(dialog).toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  expect(big()).toBe(dialog);
+
+  fireEvent.wheel(surface, { metaKey: true, deltaY: -100 });
+  await waitFor(() => expect(big()).not.toBeInTheDocument());
+});
+
+test("one notch of the wheel grows it only part of the way, however far the wheel says it turned", async () => {
+  const { surface } = setup();
+
+  fireEvent.wheel(surface, { metaKey: true, deltaY: 1000 });
+  await new Promise((resolve) => setTimeout(resolve, 250));
+
+  expect(big()).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Full screen" })).toHaveAttribute("aria-pressed", "false");
+});
+
 test("a scroll without the control key is left to what is in it", () => {
   const { surface } = setup();
 
