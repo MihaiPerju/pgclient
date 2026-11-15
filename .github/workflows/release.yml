@@ -1,6 +1,7 @@
 name: Release
 
-# Push a tag such as v0.2.0 and every platform's installer is built and attached to a draft release.
+# Push a tag such as v0.2.0 and every platform's installer is built and attached to a release, which is published once all of them are in.
+# Each installer is also attached under a name without the version, so releases/latest/download/<name> always gives the newest.
 on:
   push:
     tags: ["v*"]
@@ -9,19 +10,36 @@ permissions:
   contents: write
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+    steps:
+      - id: draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          id=$(gh api "repos/${{ github.repository }}/releases" -f tag_name="${{ github.ref_name }}" -f name="PgClient ${{ github.ref_name }}" -f body="Download the installer for your system below." -F draft=true --jq .id)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: release
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: macos-latest
             args: --target aarch64-apple-darwin
+            stable: dmg=PgClient-mac-arm64.dmg
           - os: macos-latest
             args: --target x86_64-apple-darwin
+            stable: dmg=PgClient-mac-intel.dmg
           - os: ubuntu-22.04
             args: ""
+            stable: AppImage=PgClient-linux.AppImage deb=PgClient-linux.deb
           - os: windows-latest
             args: ""
+            stable: msi=PgClient-windows.msi exe=PgClient-windows-setup.exe
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -58,12 +76,34 @@ jobs:
       - run: npm ci
       - run: npm --prefix web ci
 
-      - uses: tauri-apps/tauri-action@v0
+      - id: tauri
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: PgClient ${{ github.ref_name }}
-          releaseBody: Download the installer for your system below.
-          releaseDraft: true
+          releaseId: ${{ needs.release.outputs.id }}
           args: ${{ matrix.args }}
+
+      - name: The installers again, under names that stay the same
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PATHS: ${{ steps.tauri.outputs.artifactPaths }}
+        run: |
+          for pair in ${{ matrix.stable }}; do
+            ext=${pair%%=*}
+            name=${pair#*=}
+            file=$(node -p "JSON.parse(process.env.PATHS).find((p) => p.endsWith('.$ext')) ?? ''")
+            if [ -z "$file" ]; then echo "No .$ext was built"; exit 1; fi
+            gh api --method POST -H "Content-Type: application/octet-stream" \
+              "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.release.outputs.id }}/assets?name=$name" \
+              --input "$file" --jq .browser_download_url
+          done
+
+  publish:
+    needs: [release, build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api --method PATCH "repos/${{ github.repository }}/releases/${{ needs.release.outputs.id }}" -F draft=false -f make_latest=true --jq .html_url

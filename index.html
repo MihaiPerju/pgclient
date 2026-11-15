@@ -67,6 +67,9 @@
   .btn:hover { text-decoration: none; border-color: #3a3a46; }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .btn.primary:hover { filter: brightness(1.1); }
+  .others { color: var(--muted); font-size: 14px; margin-top: 12px; }
+  .others a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+  .others a:hover { color: var(--text); }
   .hint { margin-top: 56px; color: var(--muted); font-size: 14px; }
   .hint span { display: inline-block; animation: nudge 1.8s ease-in-out infinite; }
   @keyframes nudge { 50% { transform: translateY(5px); } }
@@ -208,9 +211,11 @@
       <h1>A Postgres client built around<br><em>problems I kept having.</em></h1>
       <p class="lead">I wrote PgClient for myself. Each slide is one thing that annoyed me enough to fix.</p>
       <div class="cta">
-        <a class="btn primary" href="#config">See the problems</a>
+        <a class="btn primary" id="download" href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-arm64.dmg">Download for Mac</a>
+        <a class="btn" href="#config">See the problems</a>
         <a class="btn" href="https://github.com/MihaiPerju/pgclient">View on GitHub</a>
       </div>
+      <p class="others">Also for <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-intel.dmg">Intel Mac</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-windows-setup.exe">Windows</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-linux.AppImage">Linux</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest">all downloads</a>. Not yet signed by Apple: open it the first time with right-click → Open.</p>
       <div class="hint"><span>↓</span> scroll, or use the ← → keys</div>
     </div>
   </section>
@@ -482,6 +487,12 @@ npm run tauri dev
 </div>
 
 <script>
+  // The Download button offers the installer for the system the page is opened on; a Mac gets the Apple Silicon one, the others are linked beneath.
+  const system = (navigator.userAgentData?.platform || navigator.platform || "").toLowerCase();
+  const download = document.getElementById("download");
+  if (system.includes("win")) Object.assign(download, { href: "https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-windows-setup.exe", textContent: "Download for Windows" });
+  else if (system.includes("linux")) Object.assign(download, { href: "https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-linux.AppImage", textContent: "Download for Linux" });
+
   const slides = [...document.querySelectorAll(".slide")];
   const dots = [...document.querySelectorAll(".dots a")];
 
