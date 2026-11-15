@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PgClient: a Postgres client built around problems I kept having</title>
 <meta name="description" content="PgClient is an open-source desktop client for PostgreSQL. Config files instead of forms, production that is red, and foreign keys you can follow as a graph.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mihaiperju.github.io/pgclient/">
+<meta property="og:title" content="PgClient: a Postgres client built around problems I kept having">
+<meta property="og:description" content="Open-source Postgres desktop client. Tunnels that reopen themselves, production that is red, and foreign keys you can follow as a graph.">
+<meta property="og:image" content="https://mihaiperju.github.io/pgclient/docs/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PgClient connected to a shop database tagged prod, with live metrics and a table of orders">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mihaiperju.github.io/pgclient/docs/og.png">
 <style>
   :root {
     --bg: #0b0b0e;
@@ -466,8 +476,8 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
 
   <section class="plain" id="start">
     <div class="kicker">Get started</div>
-    <h2>Running in two minutes.</h2>
-    <p class="sub">macOS first. Windows and Linux builds are produced by the release workflow, but passwords are kept in the macOS Keychain only for now.</p>
+    <h2>Build it from source (2 minutes).</h2>
+    <p class="sub">Just want to use it? <a href="https://github.com/MihaiPerju/pgclient/releases/latest">Download a release</a> instead. macOS first. Windows and Linux builds are produced by the release workflow, but passwords are kept in the macOS Keychain only for now.</p>
 <pre class="block"><span class="c"># a throwaway Postgres to try it against (user, password and database: pgclient)</span>
 docker compose -f compose.test.yaml up -d --wait
 

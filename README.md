@@ -1,6 +1,14 @@
-# pgclient
+# PgClient
 
-A small Postgres client: pick a server, pick a database, write SQL, run it.
+A Postgres desktop client built around problems I kept having: tunnels that reopen themselves, production that is red, servers in a file like `~/.kube/config`, and foreign keys you can follow without writing a join.
+
+![PgClient connected to a shop database tagged prod, with live metrics and a table of orders](docs/screenshots/hero-prod.webp)
+
+**[Download for Mac](https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-arm64.dmg)** · [Intel Mac](https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-intel.dmg) · [Windows](https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-windows-setup.exe) · [Linux](https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-linux.AppImage) · [Website](https://mihaiperju.github.io/pgclient/)
+
+Postgres only, MIT, Tauri and Rust. Not yet signed by Apple: if macOS blocks the first launch, open System Settings → Privacy & Security and click Open Anyway.
+
+## Development
 
     docker compose -f compose.test.yaml up -d --wait   # throwaway Postgres on :5435 for the tests
     npm install && npm --prefix web install
