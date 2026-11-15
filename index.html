@@ -57,7 +57,8 @@
     border-bottom: 1px solid #ffffff08;
   }
 
-  .hero { text-align: center; }
+  .hero { text-align: center; justify-content: flex-start; }
+  .hero-shot { max-width: 1100px; margin: 48px auto 0; box-shadow: 0 30px 80px -24px #000, 0 0 140px -30px var(--accent-soft), 0 0 0 1px #ffffff06 inset; }
   .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
   h1 { font-size: clamp(38px, 6.4vw, 70px); line-height: 1.06; letter-spacing: -0.035em; margin: 22px 0 20px; font-weight: 700; }
   h1 em { font-style: normal; color: var(--accent); }
@@ -70,7 +71,7 @@
   .hero .others { color: var(--muted); font-size: 14px; line-height: 1.7; margin-top: 20px; }
   .others a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
   .others a:hover { color: var(--text); }
-  .hint { margin-top: 56px; color: var(--muted); font-size: 14px; }
+  .hint { margin-top: 40px; color: var(--muted); font-size: 14px; }
   .hint span { display: inline-block; animation: nudge 1.8s ease-in-out infinite; }
   @keyframes nudge { 50% { transform: translateY(5px); } }
 
@@ -215,6 +216,7 @@
         <a class="btn" href="https://github.com/MihaiPerju/pgclient">View on GitHub</a>
       </div>
       <p class="others">Also for <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-intel.dmg">Intel Mac</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-windows-setup.exe">Windows</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-linux.AppImage">Linux</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest">all downloads</a><br>Not yet signed by Apple. If macOS blocks the first launch, open System Settings → Privacy &amp; Security and click Open Anyway.</p>
+      <img class="shot hero-shot" src="docs/screenshots/hero-prod.webp" alt="PgClient connected to a shop database tagged prod, so the tab and Run button are red: the tables panel, a live bar of connections, cache hit rate and transactions per second, and fifty orders with readable dates" width="2880" height="1620" fetchpriority="high">
       <div class="hint"><span>↓</span> scroll, or use the ← → keys</div>
     </div>
   </section>
