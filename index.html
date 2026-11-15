@@ -344,6 +344,15 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
         </ul>
       </div>
       <div class="files">
+        <figure>
+          <a class="open" href="docs/screenshots/tunnel.webp" target="_blank" rel="noopener" title="Open full size">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="docs/screenshots/tunnel-still.webp">
+              <img class="shot" src="docs/screenshots/tunnel.webp" alt="PgClient on a prod server runs a query through a kubectl port-forward it opened itself; the forward is killed in a terminal, the query is run again and still returns its rows, and the terminal shows a new port-forward" width="1320" height="608" loading="lazy">
+            </picture>
+          </a>
+          <figcaption><b>Recorded, not staged.</b> The forward is killed in the terminal. The next Run still returns its rows, through a new forward.</figcaption>
+        </figure>
         <div class="file">
           <header>kubectl · inside a server entry</header>
 <pre><span class="k">"tunnel"</span>: { <span class="k">"command"</span>: [
