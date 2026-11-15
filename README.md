@@ -20,7 +20,7 @@ Add `localhost:5435`, user `pgclient`, password `pgclient` as a server to try it
 
 Like kubectl reads `~/.kube/config`, the app reads `~/.pgclient/servers.json` by itself (or the file `$PGCLIENT_CONFIG` points to). Its servers appear in the picker, are read again whenever the window regains focus, and are changed only in the file. The format is `docs/servers.schema.json`, with an example in `docs/servers.example.json`.
 
-A server may have an `environment`: `local`, `dev`, `staging` or `prod`. It is shown after the name, so `shop` in dev reads `shop – dev`, and the same name can be listed once in each. While it is chosen, the indigo accent everywhere turns teal for local, blue for dev and red for prod. Staging keeps the indigo.
+A server may have an `environment`: `local`, `dev`, `staging` or `prod`. It is shown after the name, so `shop` in dev reads `shop - dev`, and the same name can be listed once in each. While it is chosen, the indigo accent everywhere turns teal for local, blue for dev and red for prod. Staging keeps the indigo.
 
 A server may have a `tunnel`, such as a `kubectl port-forward`. It is started when you connect, only if the port is not already answering, and stopped when the app quits. If its port answers but nothing gets through, as when a forward outlives its login, it is started again once; a forward left by an earlier run counts, if it runs exactly the same command, while anything else on the port is left alone. If it fails, the app shows what the command said. Tunnels are read only from this file, never from an import.
 

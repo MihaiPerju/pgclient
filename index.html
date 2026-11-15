@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PgClient — a Postgres client built around problems I kept having</title>
+<title>PgClient: a Postgres client built around problems I kept having</title>
 <meta name="description" content="PgClient is an open-source desktop client for PostgreSQL. Config files instead of forms, production that is red, and foreign keys you can follow as a graph.">
 <style>
   :root {
@@ -67,7 +67,7 @@
   .btn:hover { text-decoration: none; border-color: #3a3a46; }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .btn.primary:hover { filter: brightness(1.1); }
-  .others { color: var(--muted); font-size: 14px; margin-top: 12px; }
+  .hero .others { color: var(--muted); font-size: 14px; line-height: 1.7; margin-top: 20px; }
   .others a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
   .others a:hover { color: var(--text); }
   .hint { margin-top: 56px; color: var(--muted); font-size: 14px; }
@@ -212,10 +212,9 @@
       <p class="lead">I wrote PgClient for myself. Each slide is one thing that annoyed me enough to fix.</p>
       <div class="cta">
         <a class="btn primary" id="download" href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-arm64.dmg">Download for Mac</a>
-        <a class="btn" href="#config">See the problems</a>
         <a class="btn" href="https://github.com/MihaiPerju/pgclient">View on GitHub</a>
       </div>
-      <p class="others">Also for <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-intel.dmg">Intel Mac</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-windows-setup.exe">Windows</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-linux.AppImage">Linux</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest">all downloads</a>. Not yet signed by Apple: open it the first time with right-click → Open.</p>
+      <p class="others">Also for <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-mac-intel.dmg">Intel Mac</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-windows-setup.exe">Windows</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest/download/PgClient-linux.AppImage">Linux</a> · <a href="https://github.com/MihaiPerju/pgclient/releases/latest">all downloads</a><br>Not yet signed by Apple: open it the first time with right-click → Open.</p>
       <div class="hint"><span>↓</span> scroll, or use the ← → keys</div>
     </div>
   </section>
@@ -275,14 +274,14 @@ localhost:5439:shop:demo:<span class="s">demo-not-secret</span></pre>
       <div class="pair">
         <figure>
           <img class="shot" src="docs/screenshots/env-local.webp" alt="The same query on the local server, with a teal Run button and teal highlighting" width="1750" height="380" loading="lazy">
-          <figcaption><b>shop – local.</b> The same query, the same database name.</figcaption>
+          <figcaption><b>shop - local.</b> The same query, the same database name.</figcaption>
         </figure>
         <figure>
           <img class="shot" src="docs/screenshots/env-prod.webp" alt="The same query on the prod server, with a red Run button, red server box and red highlighting" width="1750" height="380" loading="lazy">
-          <figcaption><b>shop – prod.</b> Red everywhere, so you cannot miss it.</figcaption>
+          <figcaption><b>shop - prod.</b> Red everywhere, so you cannot miss it.</figcaption>
         </figure>
       </div>
-      <p class="fine">The same name can be listed once per environment, so <code>shop</code> in prod reads <code>shop – prod</code>.</p>
+      <p class="fine">The same name can be listed once per environment, so <code>shop</code> in prod reads <code>shop - prod</code>.</p>
     </div>
   </section>
 
