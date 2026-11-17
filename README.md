@@ -36,6 +36,10 @@ A server with no `password` gets one from `~/.pgpass` (or `$PGPASSFILE`) the way
 
 Servers can also be added in the app, with passwords in the macOS Keychain, or brought in once with **Import / export**, from a servers file or plain `postgres://` addresses, one to a line (`#name` on the end names it). An export leaves passwords out unless asked. Keep real servers files out of the repo: `*.pgclient.json` is ignored.
 
+## Tabs
+
+Each database is a tab. Drag a tab along its strip to put it in another place, onto the other pane to move it there, or to the right edge of a window that is not split to open a pane of its own. Esc gives a drag up. Without a pointer, Alt with the left or right arrow moves the tab in front a place.
+
 ## Suggestions
 
 When a database is chosen, its tables, columns and foreign keys are loaded in one go and kept, so the editor can suggest from them before the first word is typed. After `from`, `join` or `on` the list opens by itself: tables after `from` and `join`, the columns of a table after its name or alias and a dot, and the columns of the statement's tables wherever a column can go (with the table in front when two of them have it). After `join … on`, the conditions the foreign keys give, either way round. The list is loaded again when the tables panel is refreshed, and after a statement that creates, alters, drops or renames something.

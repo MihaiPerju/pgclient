@@ -5,6 +5,7 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import { CloseIcon } from "./CloseIcon";
 import type { Environment } from "./gateway";
 import { palette } from "./palette";
+import { useTabDrag } from "./TabDrag";
 import { useTheme } from "./theme";
 
 export interface TabView {
@@ -29,15 +30,24 @@ interface Props {
   onMove?: (id: string) => void;
   /** Whether the window is split, in which case a tab can be sent to the other side. */
   split?: boolean;
+  /** Which pane of the window this is, which a dragged tab is told it came from. */
+  pane?: number;
 }
 
 /** The databases that are open, one tab each. A tab wears the colour of its environment, so a production one is not mistaken for another. */
-export function TabBar({ tabs, activeId, onSelect, onClose, onNew, onSplit, onMove, split = false }: Props) {
+export function TabBar({ tabs, activeId, onSelect, onClose, onNew, onSplit, onMove, split = false, pane = 0 }: Props) {
   const { dark } = useTheme();
+  const drag = useTabDrag();
   // The last tab of the window cannot be closed, and a pane's last one closes the pane, which is only when there are two.
   const closable = tabs.length > 1 || split;
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>, index: number) {
+    // Alt with an arrow moves the tab itself, the way a drag does, for anyone who is not using a pointer.
+    if (event.altKey && (event.key === "ArrowRight" || event.key === "ArrowLeft")) {
+      event.preventDefault();
+      drag?.nudge(tabs[index].id, event.key === "ArrowRight" ? 1 : -1);
+      return;
+    }
     const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
     if (step === 0) return;
     event.preventDefault();
@@ -54,7 +64,7 @@ export function TabBar({ tabs, activeId, onSelect, onClose, onNew, onSplit, onMo
   };
 
   return (
-    <div className="pg-tabs" role="tablist" aria-label="Open databases">
+    <div className="pg-tabs" role="tablist" aria-label="Open databases" data-tabstrip>
       {tabs.map((tab, index) => {
         const active = tab.id === activeId;
         const accent = palette(dark, tab.environment).accent;
@@ -68,7 +78,15 @@ export function TabBar({ tabs, activeId, onSelect, onClose, onNew, onSplit, onMo
             title={tab.title}
             className="pg-tab"
             data-active={active}
+            data-dragging={drag?.draggingId === tab.id || undefined}
             style={{ "--tab-accent": accent } as React.CSSProperties}
+            onPointerDown={(event) => drag?.press(tab.id, pane, event)}
+            // The click that ends a drag is the drag's, and must not select the tab it ends on.
+            onClickCapture={(event) => {
+              if (!drag?.swallowClick()) return;
+              event.stopPropagation();
+              event.preventDefault();
+            }}
             onClick={() => onSelect(tab.id)}
             onAuxClick={(event) => onAuxClick(event, tab.id)}
             onKeyDown={(event) => onKeyDown(event, index)}

@@ -228,6 +228,11 @@ textarea {
   outline-offset: -1px;
 }
 
+/* The tab being dragged stays in the strip, faded, so the strip does not jump while the tab is carried. */
+.pg-tab[data-dragging="true"] {
+  opacity: 0.4;
+}
+
 .pg-tab-dot {
   flex: none;
   width: 7px;

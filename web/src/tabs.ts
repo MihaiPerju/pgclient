@@ -125,16 +125,58 @@ export function moveTab(layout: Layout, id: string): Layout {
   const split = layout.panes.length >= MAX_PANES;
   if (!split && layout.panes[from].tabs.length <= 1) return layout;
   const tab = layout.panes[from].tabs.find((candidate) => candidate.id === id)!;
-  const position = layout.panes[from].tabs.indexOf(tab);
-  const panes: PaneLayout[] = layout.panes.map((pane, index) => {
-    if (index !== from) return pane;
-    const rest = pane.tabs.filter((candidate) => candidate.id !== id);
-    return { tabs: rest, active: pane.active === id ? (rest[Math.min(position, rest.length - 1)]?.id ?? "") : pane.active };
-  });
+  const panes: PaneLayout[] = layout.panes.map((pane, index) => (index === from ? without(pane, id) : pane));
   if (split) panes[1 - from] = { tabs: [...panes[1 - from].tabs, tab], active: id };
   else panes.push({ tabs: [tab], active: id });
   const kept = panes.filter((pane) => pane.tabs.length > 0);
   return { panes: kept, focus: kept.findIndex((pane) => pane.tabs.some((candidate) => candidate.id === id)) };
+}
+
+/** Where a dragged tab is let go: in a gap among the tabs of a pane, counted from 0 before the first tab, or off to the side, to be a pane of its own. */
+export type Drop = { kind: "between"; pane: number; at: number } | { kind: "aside" };
+
+const clamped = (value: number, least: number, most: number) => Math.min(most, Math.max(least, value));
+
+/** What a pane is left with when one of its tabs goes: the tabs that remain, and the one in front, which is the neighbour if the one that went was it. */
+function without(pane: PaneLayout, id: string): PaneLayout {
+  const position = pane.tabs.findIndex((tab) => tab.id === id);
+  const rest = pane.tabs.filter((tab) => tab.id !== id);
+  return { tabs: rest, active: pane.active === id ? (rest[Math.min(position, rest.length - 1)]?.id ?? "") : pane.active };
+}
+
+/** Lets go of a tab that was being dragged: it is put among the tabs of the pane it was let go in, or in a pane of its own when let go off to the side. It comes to the front there, and that pane is the one worked in. A pane it leaves empty closes, and a tab is never lost. */
+export function placeTab(layout: Layout, id: string, drop: Drop): Layout {
+  const from = paneOf(layout, id);
+  if (from < 0) return layout;
+  if (drop.kind === "aside") return layout.panes.length === 1 ? moveTab(layout, id) : layout;
+  const target = layout.panes[drop.pane];
+  if (!target) return layout;
+  const tab = layout.panes[from].tabs.find((candidate) => candidate.id === id)!;
+  const gap = clamped(drop.at, 0, target.tabs.length);
+  if (drop.pane === from) {
+    const position = target.tabs.indexOf(tab);
+    const rest = target.tabs.filter((candidate) => candidate.id !== id);
+    rest.splice(gap > position ? gap - 1 : gap, 0, tab);
+    return { focus: from, panes: layout.panes.map((pane, index) => (index === from ? { tabs: rest, active: id } : pane)) };
+  }
+  const panes = layout.panes.map((pane, index) => {
+    if (index === from) return without(pane, id);
+    const tabs = [...pane.tabs];
+    tabs.splice(gap, 0, tab);
+    return { tabs, active: id };
+  });
+  const kept = panes.filter((pane) => pane.tabs.length > 0);
+  return { panes: kept, focus: kept.findIndex((pane) => pane.tabs.some((candidate) => candidate.id === id)) };
+}
+
+/** Moves a tab a place along its pane, which is how a tab is moved without a pointer. */
+export function nudgeTab(layout: Layout, id: string, step: 1 | -1): Layout {
+  const pane = paneOf(layout, id);
+  if (pane < 0) return layout;
+  const position = layout.panes[pane].tabs.findIndex((tab) => tab.id === id);
+  const next = position + step;
+  if (next < 0 || next >= layout.panes[pane].tabs.length) return layout;
+  return placeTab(layout, id, { kind: "between", pane, at: step > 0 ? next + 1 : next });
 }
 
 /** What a tab is called: the database first, since that is what tells tabs apart, then the server it is on. */

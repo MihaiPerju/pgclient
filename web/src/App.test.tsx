@@ -1068,6 +1068,81 @@ describe("two panes side by side", () => {
     expect((screen.getAllByLabelText("SQL")[1] as HTMLTextAreaElement).value).toBe("");
   });
 
+  /** The panes side by side across 1200, with a strip of 30 along the top of each and tabs of 100 across in it, since there is no layout to measure. */
+  const arrange = (count: number) => {
+    const rect = (left: number, top: number, right: number, bottom: number) => ({ left, top, right, bottom, x: left, y: top, width: right - left, height: bottom - top, toJSON: () => ({}) }) as DOMRect;
+    const width = 1200 / count;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const holder = this.closest("[data-column]") as HTMLElement | null;
+      if (!holder) return rect(0, 0, 1200, 800);
+      const left = Number(holder.dataset.column) * width;
+      if (this === holder) return rect(left, 0, left + width, 800);
+      if (this.hasAttribute("data-tab")) {
+        const at = [...holder.querySelectorAll("[data-tab]")].indexOf(this);
+        return rect(left + at * 100, 0, left + (at + 1) * 100, 30);
+      }
+      if (this.hasAttribute("data-tabstrip")) return rect(left, 0, left + width, 30);
+      return rect(left, 0, left + 1, 1);
+    });
+  };
+  const drag = (tab: HTMLElement, to: { x: number; y: number }) => {
+    fireEvent.pointerDown(tab, { pointerId: 1, button: 0, clientX: 50, clientY: 10 });
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: to.x, clientY: to.y });
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: to.x, clientY: to.y });
+  };
+  const kept = (...panes: string[][]) =>
+    JSON.stringify({ panes: panes.map((ids) => ({ tabs: ids.map((id) => ({ id, serverId: "s1", database: id === "b" ? "postgres" : "app" })), active: ids[0] })), focus: 0 });
+
+  test("a tab dragged onto the tabs of the other pane moves there, at the place it was let go", async () => {
+    await fresh({ tabs: kept(["a", "b"], ["c"]) });
+    arrange(2);
+
+    drag(inPane(0).getAllByRole("tab")[1], { x: 650, y: 10 });
+
+    expect(inPane(0).getAllByRole("tab")).toHaveLength(1);
+    expect(inPane(1).getAllByRole("tab")).toHaveLength(2);
+    expect(inPane(1).getAllByRole("tab")[0]).toHaveAttribute("title", "postgres on Local");
+  });
+
+  test("a tab dragged to the edge of a window that is not split opens a pane of its own", async () => {
+    await fresh({ tabs: kept(["a", "b"]) });
+    arrange(1);
+
+    drag(screen.getAllByRole("tab")[1], { x: 1150, y: 400 });
+
+    expect(screen.getAllByRole("region", { name: /Pane/ })).toHaveLength(2);
+    expect(inPane(1).getAllByRole("tab")).toHaveLength(1);
+    expect(inPane(1).getAllByRole("tab")[0]).toHaveAttribute("title", "postgres on Local");
+  });
+
+  test("a tab dragged along its own strip changes the order of the tabs", async () => {
+    await fresh({ tabs: kept(["a", "b", "c"]) });
+    arrange(1);
+
+    drag(screen.getAllByRole("tab")[0], { x: 290, y: 10 });
+
+    expect(screen.getAllByRole("tab").map((tab) => tab.getAttribute("title"))).toEqual(["postgres on Local", "app on Local", "app on Local"]);
+    expect(screen.getAllByRole("tab")[2]).toHaveAttribute("aria-selected", "true");
+  });
+
+  test("a tab is moved a place with Alt and the arrow keys", async () => {
+    await fresh({ tabs: kept(["a", "b", "c"]) });
+
+    fireEvent.keyDown(screen.getAllByRole("tab")[1], { key: "ArrowRight", altKey: true });
+
+    expect(screen.getAllByRole("tab").map((tab) => tab.getAttribute("title"))).toEqual(["app on Local", "app on Local", "postgres on Local"]);
+  });
+
+  test("a drag that ends nowhere leaves the tabs as they were", async () => {
+    await fresh({ tabs: kept(["a", "b"], ["c"]) });
+    arrange(2);
+
+    drag(inPane(0).getAllByRole("tab")[1], { x: 100, y: 500 });
+
+    expect(inPane(0).getAllByRole("tab")).toHaveLength(2);
+    expect(inPane(1).getAllByRole("tab")).toHaveLength(1);
+  });
+
   test("a tab can be moved to the other pane, and the pane it left keeps the tab beside it", async () => {
     await fresh({ tabs: JSON.stringify({ panes: [{ tabs: [{ id: "a", serverId: "s1", database: "app" }, { id: "b", serverId: "s1", database: "postgres" }], active: "b" }, { tabs: [{ id: "c", serverId: "s1", database: "app" }], active: "c" }], focus: 0 }) });
 

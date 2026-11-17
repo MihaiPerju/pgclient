@@ -52,6 +52,8 @@ interface Props {
   focused: boolean;
   /** Whether it is one of two, and so can be closed and not split again. */
   split: boolean;
+  /** Which column of the window it is, from the left, which a dragged tab is let go over. */
+  index: number;
   /** Called by the pane whenever the tab in front is about to be used, so the window can follow it. */
   onFocus: () => void;
   onSelect: (id: string) => void;
@@ -242,12 +244,13 @@ export function Pane(props: Props) {
       role="region"
       aria-label={split ? (props.focused ? "Pane, being worked in" : "Pane") : "Pane"}
       data-focused={focused}
+      data-column={props.index}
       className="pg-pane"
       onMouseDownCapture={props.onFocus}
       onFocusCapture={props.onFocus}
       style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: 0, background: token.colorBgContainer }}
     >
-      <TabBar tabs={tabViews} activeId={activeId} onSelect={props.onSelect} onClose={close} onNew={props.onNew} onSplit={split ? undefined : props.onSplit} onMove={props.onMove} split={split} />
+      <TabBar pane={props.index} tabs={tabViews} activeId={activeId} onSelect={props.onSelect} onClose={close} onNew={props.onNew} onSplit={split ? undefined : props.onSplit} onMove={props.onMove} split={split} />
       <Flex gap={8} align="center" wrap style={{ padding: "6px 10px", borderBottom: border, minWidth: 0 }}>
         <Space.Compact>
           <Select

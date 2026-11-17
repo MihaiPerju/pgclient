@@ -10,10 +10,11 @@ import { ServerModal } from "./ServerModal";
 import { ShareModal } from "./ShareModal";
 import { TablesPanel } from "./TablesPanel";
 import type { TabView } from "./TabBar";
+import { TabDragProvider } from "./TabDrag";
 import { commandFor, onMac, tabForNumber, type Command } from "./shortcuts";
 import { ThemeSwitch } from "./ThemeSwitch";
 import { useTheme } from "./theme";
-import { addTab, closeTab, focusedTab, focusPane, LAYOUT_KEY, mergePanes, moveTab, newTabId, parseLayout, selectTab, serializeLayout, splitPane, tabLabel, tabsOf, textKey, type Layout, type Tab } from "./tabs";
+import { addTab, closeTab, focusedTab, focusPane, LAYOUT_KEY, mergePanes, moveTab, newTabId, nudgeTab, parseLayout, placeTab, selectTab, serializeLayout, splitPane, tabLabel, tabsOf, textKey, type Layout, type Tab } from "./tabs";
 
 const SERVER_KEY = "pgclient.server";
 const databaseKey = (serverId: string) => `pgclient.database.${serverId}`;
@@ -293,6 +294,10 @@ export function App({ gateway }: { gateway: Gateway }) {
 
   const border = `1px solid ${token.colorBorderSecondary}`;
   const viewOf = (tab: Tab): TabView => ({ id: tab.id, ...tabLabel(tab, servers), busy: workspaces[tab.id]?.run.status === "running" });
+  const labelOf = (id: string) => {
+    const found = tabsOf(layout).find((tab) => tab.id === id);
+    return found ? viewOf(found).label : "";
+  };
 
   return (
     <Flex vertical style={{ height: "100%", background: token.colorBgLayout }}>
@@ -330,6 +335,7 @@ export function App({ gateway }: { gateway: Gateway }) {
             />
           </>
         )}
+        <TabDragProvider labelOf={labelOf} onDrop={(id, drop) => setLayout((now) => placeTab(now, id, drop))} onNudge={(id, step) => setLayout((now) => nudgeTab(now, id, step))}>
         <div ref={panesRef} style={{ display: "flex", flex: 1, minWidth: 0, background: token.colorBgContainer }}>
           {layout.panes.map((pane, index) => {
             const split = layout.panes.length > 1;
@@ -346,6 +352,7 @@ export function App({ gateway }: { gateway: Gateway }) {
                 workspaces={workspaces}
                 focused={layout.focus === index}
                 split={split}
+                index={index}
                 onFocus={() => setLayout((now) => focusPane(now, index))}
                 onSelect={(id) => setLayout((now) => selectTab(now, id))}
                 onClose={dropTab}
@@ -395,6 +402,7 @@ export function App({ gateway }: { gateway: Gateway }) {
             );
           })}
         </div>
+        </TabDragProvider>
       </Flex>
       {sharingModal}
       <ServerModal open={form !== null} editing={form?.editing ?? null} onSave={saveServer} onClose={() => setForm(null)} />
